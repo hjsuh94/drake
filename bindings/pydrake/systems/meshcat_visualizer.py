@@ -415,6 +415,18 @@ class MeshcatVisualizer(LeafSystem):
                 geometry_vis.set_object(geom, material)
                 geometry_vis.set_transform(X_FG)
 
+                robot_name, link_name = inspector.GetName(frame_id).split("::")
+                if (robot_name in self.frames_to_draw.keys()
+                        and link_name in self.frames_to_draw[robot_name]):
+                    AddTriad(
+                        self.vis,
+                        name="frame",
+                        prefix=self.prefix + "/" + name,
+                        length=self.axis_length,
+                        radius=self.axis_radius,
+                        opacity=self.frames_opacity
+                    )
+
             if frame_id != inspector.world_frame_id():
                 self._dynamic_frames.append({
                     "id": frame_id,
@@ -422,11 +434,9 @@ class MeshcatVisualizer(LeafSystem):
                 })
 
     def DoPublish(self, context, event):
-
         LeafSystem.DoPublish(self, context, event)
 
         vis = self.vis[self.prefix]
-
         query_object = self.get_geometry_query_input_port().Eval(context)
 
         for frame in self._dynamic_frames:
